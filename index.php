@@ -1,24 +1,41 @@
 <?php
-/*-----------------------[ SETTINGS ]------------------------------*/
-$settings['ip'] = '0.0.0.0'; // your ip
-$settings['port'] = '30120'; // basically 30120
-/*----------------------------------------------------------------*/
-$content = json_decode(file_get_contents('http://'.$settings['ip'].':'.$settings['port'].'/info.json'), true);
-if($content):
-    $gta5_players = file_get_contents('http://'.$settings['ip'].':'.$settings['port'].'/players.json');
-    $content = json_decode($gta5_players, true);
-    $pl_count = count($content);
-    $json = file_get_contents('http://'.$settings['ip'].':'.$settings['port'].'/info.json');
-    $data = json_decode($json);
-    $uptime = $data->vars->Uptime;
-    $max_client = $data->vars->sv_maxClients;
-    // $queue = $data->vars->Queue; // UNCOMMENT IF YOU WANT TO USE THIS (MAKE SURE YOU INSTALL THE REQUIREMENTS)
+function Dapetin_Dia($url)
+{
+	$curl = curl_init();
+	curl_setopt($curl, CURLOPT_URL, $url);
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+	curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+	curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+	$result = curl_exec($curl);
+	curl_close($curl);
 
+	return json_decode($result, true);
+} 
+// SERVER SETTINGS
+$server_settings['ip'] = "";
+$server_settings['port'] = "";
 
-    // YOU CAN USE HTML OR CSS STYLE TO WRITE THIS 
-    // THIS IS JUST AN EXAMPLE
-    print "$pl_count";
-    print "$uptime";
-    // print "$queue";
+// MAIN CODE
+$urldynamic = Dapetin_Dia("http://".$server_settings['ip'].":".$server_settings['port']."/dynamic.json");
+
+if($urldynamic):
+	$info = Dapetin_Dia("http://".$server_settings['ip'].":".$server_settings['port']."/info.json");
+
+	$playeron = $urldynamic['clients'];
+	$playermax = $urldynamic['sv_maxclients'];
+	$playeronpercentage = ($playeron * 100) / $playermax;
+	$queue = $info['vars']['Queue'];
+	$uptime = $info['vars']['Uptime'];
+else:
+	$playeron = "0";
+	$playermax = "128";
+	$playeronpercentage = "0";
+	$queue = "0";
+  $uptime = "00h 00m";
 endif;
+
+// USAGE
+// <?= $playeron; =>
+
 ?>
